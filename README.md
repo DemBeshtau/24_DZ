@@ -84,7 +84,7 @@ PING 10.10.10.1 (10.10.10.1) 56(84) bytes of data.
 rtt min/avg/max/mdev = 0.224/0.269/0.321/0.036 ms
 ```
 #### 2. Настройка Bond ####
-- Создание bond-интерфейса на серверах inetRouter и centralRouter путём создания конфигурирования файла /etc/sysconfig/network-scripts/ifcfg-bond0 (указываются соответствующие IP-адреса):
+- Создание bond-интерфейса на серверах inetRouter и centralRouter путём конфигурирования файла /etc/sysconfig/network-scripts/ifcfg-bond0 (указываются соответствующие IP-адреса):
 ```shell
 DEVICE=bond0
 NAME=bond0
