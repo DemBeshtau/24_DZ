@@ -84,8 +84,98 @@ PING 10.10.10.1 (10.10.10.1) 56(84) bytes of data.
 rtt min/avg/max/mdev = 0.224/0.269/0.321/0.036 ms
 ```
 #### 2. Настройка Bond ####
-- Создание bond-интерфейса на сервере inetRouter путём создания конфигурирования файла /etc/sysconfig/network-scripts/ifcfg-bond0:
+- Создание bond-интерфейса на серверах inetRouter и centralRouter путём создания конфигурирования файла /etc/sysconfig/network-scripts/ifcfg-bond0 (указываются соответствующие IP-адреса):
 ```shell
+DEVICE=bond0
+NAME=bond0
+TYPE=Bond
+BONDING_MASTER=yes
+IPADDR=192.168.255.1
+NETMASK=255.255.255.252
+ONBOOT=yes
+BOOTPROTO=static
+BONDING_OPTS="mode=1 miimon=100 fail_over_mac=1"
+NM_CONTROLED=yes
+```
+- Добавление интерфейсов eth1 и eth2 в bond-интерфейс, путём конфигурирования файлов ifcfg-eth1 и ifcfg-eth2 в директории /etc/sysconfig/network-scripts/ (выполняется на обоих серверах):
+```shell
+DEVICE=eth1
+ONBOOT=yes
+BOOTPROTO=none
+MASTER=bond0
+SLAVE=yes
+NM_CONTROLLED=yes
+USERCTL=no
+```
+- Применение настроек:
+```shell
+systemctl restart NetworkManager
+```
+- Для того, чтобы проверить работоспособность конфигурации, необходимо запустить пинг с сервера inetRouter в направлении centralRouter, после чего отключить один физический интерфейс на centralRouter:  
+```shell
+[root@centralRouter ~]# ip -br link
+lo               UNKNOWN        00:00:00:00:00:00 <LOOPBACK,UP,LOWER_UP> 
+eth0             UP             52:54:00:c9:c7:04 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+bond0            UP             08:00:27:db:b1:00 <BROADCAST,MULTICAST,MASTER,UP,LOWER_UP> 
+eth1             UP             08:00:27:97:b2:63 <BROADCAST,MULTICAST,SLAVE,UP,LOWER_UP> 
+eth2             UP             08:00:27:db:b1:00 <BROADCAST,MULTICAST,SLAVE,UP,LOWER_UP> 
+eth3             UP             08:00:27:62:11:57 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+eth4             UP             08:00:27:03:f4:d5 <BROADCAST,MULTICAST,UP,LOWER_UP> 
 
-``` 
- 
+[root@inetRouter ~]# ping 192.168.255.1
+PING 192.168.255.1 (192.168.255.1) 56(84) bytes of data.
+64 bytes from 192.168.255.1: icmp_seq=1 ttl=64 time=0.010 ms
+64 bytes from 192.168.255.1: icmp_seq=2 ttl=64 time=0.037 ms
+64 bytes from 192.168.255.1: icmp_seq=3 ttl=64 time=0.026 ms
+64 bytes from 192.168.255.1: icmp_seq=4 ttl=64 time=0.027 ms
+64 bytes from 192.168.255.1: icmp_seq=5 ttl=64 time=0.027 ms
+64 bytes from 192.168.255.1: icmp_seq=6 ttl=64 time=0.030 ms
+
+[root@centralRouter ~]# ip link set down eth1
+[root@centralRouter ~]# ip -br link
+lo               UNKNOWN        00:00:00:00:00:00 <LOOPBACK,UP,LOWER_UP> 
+eth0             UP             52:54:00:c9:c7:04 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+bond0            UP             08:00:27:db:b1:00 <BROADCAST,MULTICAST,MASTER,UP,LOWER_UP> 
+eth1             DOWN           08:00:27:97:b2:63 <BROADCAST,MULTICAST,SLAVE> 
+eth2             UP             08:00:27:db:b1:00 <BROADCAST,MULTICAST,SLAVE,UP,LOWER_UP> 
+eth3             UP             08:00:27:62:11:57 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+eth4             UP             08:00:27:03:f4:d5 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+
+...
+64 bytes from 192.168.255.1: icmp_seq=60 ttl=64 time=0.040 ms
+64 bytes from 192.168.255.1: icmp_seq=61 ttl=64 time=0.035 ms
+64 bytes from 192.168.255.1: icmp_seq=62 ttl=64 time=0.038 ms
+64 bytes from 192.168.255.1: icmp_seq=63 ttl=64 time=0.036 ms
+64 bytes from 192.168.255.1: icmp_seq=64 ttl=64 time=0.024 ms
+64 bytes from 192.168.255.1: icmp_seq=65 ttl=64 time=0.024 ms
+64 bytes from 192.168.255.1: icmp_seq=66 ttl=64 time=0.024 ms
+...
+
+[root@centralRouter ~]# cat /proc/net/bonding/bond0 
+Ethernet Channel Bonding Driver: v3.7.1 (April 27, 2011)
+
+Bonding Mode: fault-tolerance (active-backup) (fail_over_mac active)
+Primary Slave: None
+Currently Active Slave: eth2
+MII Status: up
+MII Polling Interval (ms): 100
+Up Delay (ms): 0
+Down Delay (ms): 0
+
+Slave Interface: eth2
+MII Status: up
+Speed: 1000 Mbps
+Duplex: full
+Link Failure Count: 0
+Permanent HW addr: 08:00:27:db:b1:00
+Slave queue ID: 0
+
+Slave Interface: eth1
+MII Status: down
+Speed: 1000 Mbps
+Duplex: full
+Link Failure Count: 1
+Permanent HW addr: 08:00:27:97:b2:63
+Slave queue ID: 0
+```
+&ensp;&ensp;Для автоматического конфигурирования инфраструктуры с помощью Ansible, подготовлен плейбук playbook.yml.
