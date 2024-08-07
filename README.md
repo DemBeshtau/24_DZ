@@ -54,4 +54,38 @@ network:
           dhcp4: no
           addresses: [10.10.10.254/24]
     version: 2
-```  
+```
+- Применение настроек netplan:
+```shell
+netplan apply
+```
+- Проверка работоспособности конфигурации, оценка видимости хостов в пределах своих VLAN:
+```shell
+[root@testClient1 ~]# ping 10.10.10.1
+PING 10.10.10.1 (10.10.10.1) 56(84) bytes of data.
+64 bytes from 10.10.10.1: icmp_seq=1 ttl=64 time=0.230 ms
+64 bytes from 10.10.10.1: icmp_seq=2 ttl=64 time=0.374 ms
+64 bytes from 10.10.10.1: icmp_seq=3 ttl=64 time=0.353 ms
+64 bytes from 10.10.10.1: icmp_seq=4 ttl=64 time=0.341 ms
+^C
+--- 10.10.10.1 ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 2999ms
+rtt min/avg/max/mdev = 0.230/0.324/0.374/0.058 ms
+
+vagrant@testClient2:~$ ping 10.10.10.1
+PING 10.10.10.1 (10.10.10.1) 56(84) bytes of data.
+64 bytes from 10.10.10.1: icmp_seq=1 ttl=64 time=0.224 ms
+64 bytes from 10.10.10.1: icmp_seq=2 ttl=64 time=0.285 ms
+64 bytes from 10.10.10.1: icmp_seq=3 ttl=64 time=0.321 ms
+64 bytes from 10.10.10.1: icmp_seq=4 ttl=64 time=0.247 ms
+^C
+--- 10.10.10.1 ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 3066ms
+rtt min/avg/max/mdev = 0.224/0.269/0.321/0.036 ms
+```
+#### 2. Настройка Bond ####
+- Создание bond-интерфейса на сервере inetRouter путём создания конфигурирования файла /etc/sysconfig/network-scripts/ifcfg-bond0:
+```shell
+
+``` 
+ 
