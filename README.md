@@ -19,4 +19,39 @@
 &ensp;&ensp;Топология сети:<br/>
 ![24_final](https://github.com/user-attachments/assets/360dfcad-4ecd-4440-b850-08eaae67919e)
 
-   
+#### 1. Настройка VLAN ####
+- Для настройки VLAN на хостах под управлением операционной системы (OC) CentOS (testClient1, testServer1) создаётся конфигурационный файл /etc/sysconfig/network-scripts/ifcfg-vlan1 с соответствующими интерфейсами и IP-адресами:
+```shell
+VLAN=yes
+TYPE=Vlan
+PHYSDEV=eth1
+VLAN_ID=1
+VLAN_NAME_TYPE=DEV_PLUS_VID_NO_PAD
+PROXY_METHOD=none
+BROWSER_ONLY=no
+BOOTPROTO=none
+IPADDR=10.10.10.254
+PREFIX=24
+NAME=1
+DEVICE=eth1.1
+ONBOOT=yes
+```
+- Перезапуск сервиса NetworkManager:
+```shell
+systemctl restart NetworkManager
+```
+- Для настройки VLAN на хостах под управлением ОС Ubuntu (testClient2, testServer2) производится конфигурация netplan с указанием соответствующих интерфейсов и IP-адресов:
+```shell
+network:
+    ethernets:
+        enp0s3:
+            dhcp4: true
+        enp0s8: {}
+    vlans:
+        vlan2:
+          id: 2
+          link: enp0s8
+          dhcp4: no
+          addresses: [10.10.10.254/24]
+    version: 2
+```  
