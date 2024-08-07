@@ -108,13 +108,6 @@ Vagrant.configure("2") do |config|
         boxconfig[:net].each do |ipconf|
           box.vm.network "private_network", **ipconf
         end
-        #boxconfig[:net].each do |ipconf|
-        #  if ipconf[:ip]
-        #    box.vm.network "private_network", ip: ipconf[:ip], adapter: ipconf[:adapter], netmask: ipconf[:netmask], virtualbox__intnet: ipconf[:virtualbox__intnet], auto_config: ipconf.fetch(:auto_config, true)
-        #  else
-        #    box.vm.network "private_network", adapter: ipconf[:adapter], virtualbox__intnet: ipconf[:virtualbox__intnet], auto_config: ipconf[:auto_config]
-        #  end
-        #end
         
         box.vm.provision "shell", inline: <<-SHELL
           mkdir -p ~root/.ssh
