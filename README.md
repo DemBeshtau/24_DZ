@@ -16,5 +16,7 @@
 &ensp;&ensp;&ensp;Ansible (https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html).<br/>
 &ensp;&ensp;Все действия проводились с использованием Vagrant 2.4.0, VirtualBox 7.0.18, Ansible 9.4.0, образов CentOS 7 версии 1804_2 и ubuntu/jammy64 версии 20240301.0.0. <br/>
 ### Ход решения ###
+&ensp;&ensp;Топология сети:<br/>
+![24_final](https://github.com/user-attachments/assets/360dfcad-4ecd-4440-b850-08eaae67919e)
 
    
